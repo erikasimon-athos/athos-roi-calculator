@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<!-- saved from url=(0063)file:///Users/erikastephens/Downloads/Athos_ROI_Calculator.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Athos Commerce - ROI Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue:      #1D4990;
+    --blue-dark: #163672;
+    --sky:       #00AEEF;
+    --sky-light: #E6F7FD;
+    --sky-mid:   #80D7F7;
+    --page-bg:   #EDF1F8;
+    --gray-50:   #F8F9FA;
+    --gray-100:  #F1F3F5;
+    --gray-200:  #E9ECEF;
+    --gray-300:  #DEE2E6;
+    --gray-600:  #6C757D;
+    --gray-700:  #495057;
+    --gray-800:  #343A40;
+    --gray-900:  #212529;
+    --radius:    10px;
+    --radius-sm: 6px;
+    --shadow:    0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.05);
+  }
+  body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--page-bg); color:var(--gray-900); min-height:100vh; padding:2rem 1rem; }
+  .page { max-width:820px; margin:0 auto; }
+
+  .top-bar { background:var(--blue); border-radius:var(--radius); padding:1.25rem 1.75rem; margin-bottom:1.25rem; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 16px rgba(29,73,144,.3); }
+  .logo { font-size:22px; font-weight:700; color:#fff; letter-spacing:-.3px; }
+  .logo-sub { font-size:13px; color:var(--sky); margin-top:2px; }
+  .date-badge { font-size:12px; color:rgba(255,255,255,.75); background:rgba(255,255,255,.12); padding:4px 12px; border-radius:99px; border:1px solid rgba(255,255,255,.2); }
+
+  .card { background:#fff; border-radius:var(--radius); padding:1.25rem 1.5rem; box-shadow:var(--shadow); margin-bottom:1rem; border-top:3px solid var(--blue); }
+  .card-title { font-size:11px; font-weight:600; color:var(--blue); text-transform:uppercase; letter-spacing:.07em; margin-bottom:1rem; padding-bottom:.6rem; border-bottom:1px solid var(--gray-200); }
+
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .field { display:flex; flex-direction:column; gap:5px; }
+  .field label { font-size:12px; color:var(--gray-600); font-weight:500; }
+  .field input { padding:8px 11px; font-size:14px; border:1px solid var(--gray-300); border-radius:var(--radius-sm); background:var(--gray-50); color:var(--gray-900); outline:none; transition:border-color .15s,box-shadow .15s; -moz-appearance:textfield; width:100%; }
+  .field input::-webkit-outer-spin-button,.field input::-webkit-inner-spin-button { -webkit-appearance:none; }
+  .field input:focus { border-color:var(--sky); background:#fff; box-shadow:0 0 0 3px rgba(0,174,239,.12); }
+  .full { grid-column:1/-1; }
+
+  .presets { display:flex; gap:8px; margin-bottom:1rem; align-items:center; flex-wrap:wrap; }
+  .preset-lbl { font-size:12px; color:var(--gray-600); }
+  .pbtn { padding:5px 14px; font-size:12px; font-weight:500; border:1px solid var(--gray-300); border-radius:99px; background:#fff; color:var(--gray-700); cursor:pointer; transition:all .15s; }
+  .pbtn:hover { border-color:var(--blue); color:var(--blue); background:var(--page-bg); }
+  .pbtn.active { border-color:var(--blue); color:#fff; background:var(--blue); }
+
+  .slider-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--gray-100); }
+  .slider-row:last-child { border-bottom:none; }
+  .slider-row label { font-size:13px; color:var(--gray-700); min-width:200px; }
+  .slider-row input[type=range] { flex:1; accent-color:var(--blue); cursor:pointer; }
+  .sval { font-size:13px; font-weight:600; min-width:46px; text-align:right; color:var(--blue); background:var(--page-bg); padding:2px 8px; border-radius:99px; }
+
+  .grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:10px; }
+  .grid2 { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:1rem; }
+  .mbox { background:var(--gray-50); border:1px solid var(--gray-200); border-radius:var(--radius-sm); padding:1rem; display:flex; flex-direction:column; gap:4px; }
+  .mbox.ba { border-left:3px solid var(--blue); }
+  .mbox.sa { border-left:3px solid var(--sky); }
+  .mlbl { font-size:11px; font-weight:600; color:var(--gray-600); text-transform:uppercase; letter-spacing:.05em; }
+  .mval { font-size:24px; font-weight:700; color:var(--gray-900); line-height:1.1; }
+  .mval.blue { color:var(--blue); }
+  .mval.sky  { color:#0090C4; }
+  .msub { font-size:11px; color:var(--gray-600); }
+  .bar-bg { height:6px; background:var(--gray-200); border-radius:99px; margin-top:8px; overflow:hidden; }
+  .bar-fill { height:100%; background:var(--sky); border-radius:99px; transition:width .4s; }
+
+  .divider { height:1px; background:var(--gray-200); margin:1rem 0; }
+
+  table.bd { width:100%; border-collapse:collapse; font-size:13px; }
+  table.bd th { font-size:11px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:.05em; padding:8px 10px; text-align:right; background:var(--blue); }
+  table.bd th:first-child { text-align:left; border-radius:var(--radius-sm) 0 0 0; }
+  table.bd th:last-child  { border-radius:0 var(--radius-sm) 0 0; }
+  table.bd td { padding:9px 10px; border-bottom:1px solid var(--gray-100); text-align:right; }
+  table.bd td:first-child { text-align:left; color:var(--gray-700); }
+  table.bd tr:hover td { background:var(--page-bg); }
+  table.bd tr.sub td { font-weight:600; background:var(--gray-50); border-top:2px solid var(--gray-200); }
+  table.bd tr.cost td { color:var(--gray-600); font-style:italic; }
+  table.bd tr.net td { font-weight:700; color:var(--blue); font-size:14px; background:var(--page-bg); }
+
+  .btn-row { display:flex; gap:8px; margin-top:1.25rem; flex-wrap:wrap; }
+  .btn { display:inline-flex; align-items:center; gap:6px; padding:9px 18px; font-size:13px; font-weight:500; border:1px solid var(--gray-300); border-radius:var(--radius-sm); background:#fff; color:var(--gray-800); cursor:pointer; transition:all .15s; }
+  .btn:hover { background:var(--gray-100); }
+  .btn.pri { background:var(--blue); color:#fff; border-color:var(--blue); }
+  .btn.pri:hover { background:var(--blue-dark); border-color:var(--blue-dark); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn svg { width:14px; height:14px; flex-shrink:0; }
+
+  .tip-card { background:var(--sky-light); border:1px solid var(--sky-mid); border-radius:var(--radius); padding:1.25rem 1.5rem; margin-bottom:1rem; border-top:3px solid var(--sky); }
+  .tip-card .card-title { color:#0090C4; border-color:var(--sky-mid); }
+
+  .footer { text-align:center; font-size:11px; color:var(--gray-600); margin-top:2rem; padding-top:1rem; border-top:1px solid var(--gray-300); }
+  .tt { display:inline-block; font-size:10px; font-weight:600; background:var(--page-bg); color:var(--blue); border-radius:99px; padding:1px 7px; margin-left:5px; cursor:help; vertical-align:middle; border:1px solid rgba(29,73,144,.2); }
+
+  @media(max-width:600px){
+    .two-col,.grid3,.grid2{grid-template-columns:1fr;}
+    .grid3{grid-template-columns:1fr 1fr;}
+    .slider-row label{min-width:130px;font-size:12px;}
+  }
+
+  @media print {
+    body { background: #fff !important; padding: 0 !important; }
+    .btn-row, #pdfInstructions, .tip-card, .footer { display: none !important; }
+    .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
+    .top-bar { border-radius: 0 !important; }
+    .page { max-width: 100% !important; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="top-bar">
+    <div>
+      <div class="logo">Athos Commerce</div>
+      <div class="logo-sub">ROI Calculator</div>
+    </div>
+    <div class="date-badge" id="dateBadge">April 29, 2026</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Prospect information</div>
+    <div class="two-col">
+      <div class="field"><label>Prospect / site name</label><input type="text" id="siteName" placeholder="e.g. Acme Co." oninput="calc()"></div>
+      <div class="field"><label>Prepared by</label><input type="text" id="repName" placeholder="Your name"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Current site metrics</div>
+    <div class="two-col">
+      <div class="field"><label>Annual sessions <span class="tt" title="Total sessions last 12 months. GA4 &gt; Reports &gt; Acquisition.">?</span></label><input type="number" id="sessions" value="221743" min="0" oninput="calc()"></div>
+      <div class="field"><label>Search sessions (annual) <span class="tt" title="Sessions using site search. See GA4 guide below.">?</span></label><input type="number" id="searchSessions" value="150000" min="0" oninput="calc()"></div>
+      <div class="field"><label>Site-wide conversion rate (%)</label><input type="number" id="cvr" value="2.00" step="0.01" min="0" max="100" oninput="calc()"></div>
+      <div class="field"><label>Search conversion rate (%) <span class="tt" title="Typically 1.5x the site-wide rate.">?</span></label><input type="number" id="searchCvr" value="1.56" step="0.01" min="0" max="100" oninput="calc()"></div>
+      <div class="field full"><label>Average order value ($)</label><input type="number" id="aov" value="661" step="1" min="0" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Athos impact assumptions</div>
+    <div class="presets">
+      <span class="preset-lbl">Scenario:</span>
+      <button class="pbtn" onclick="setPreset(&#39;conservative&#39;)">Conservative</button>
+      <button class="pbtn active" onclick="setPreset(&#39;moderate&#39;)">Moderate</button>
+      <button class="pbtn" onclick="setPreset(&#39;aggressive&#39;)">Aggressive</button>
+    </div>
+    <div class="slider-row"><label>AOV lift from recommendations</label><input type="range" id="aovLift" min="1" max="30" value="10" step="1" oninput="document.getElementById(&#39;aovLiftVal&#39;).textContent=this.value+&#39;%&#39;;clearPreset();calc()"><span class="sval" id="aovLiftVal">10%</span></div>
+    <div class="slider-row"><label>Search conversion rate lift</label><input type="range" id="searchLift" min="1" max="50" value="15" step="1" oninput="document.getElementById(&#39;searchLiftVal&#39;).textContent=this.value+&#39;%&#39;;clearPreset();calc()"><span class="sval" id="searchLiftVal">15%</span></div>
+    <div class="slider-row"><label>Site-wide CVR lift</label><input type="range" id="cvrLift" min="0" max="30" value="5" step="1" oninput="document.getElementById(&#39;cvrLiftVal&#39;).textContent=this.value+&#39;%&#39;;clearPreset();calc()"><span class="sval" id="cvrLiftVal">5%</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Platform investment</div>
+    <div class="two-col">
+      <div class="field"><label>Annual platform cost ($)</label><input type="number" id="platformCost" value="36000" step="1000" min="0" oninput="calc()"></div>
+      <div class="field"><label>One-time implementation cost ($)</label><input type="number" id="implCost" value="5000" step="500" min="0" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Projected results</div>
+    <div class="grid3">
+      <div class="mbox ba"><span class="mlbl">Total annual lift</span><span class="mval blue" id="totalAnnual">$572.6K</span><span class="msub">Gross revenue gain</span></div>
+      <div class="mbox ba"><span class="mlbl">Net annual ROI</span><span class="mval blue" id="netAnnual">$531.6K</span><span class="msub">After platform cost</span></div>
+      <div class="mbox"><span class="mlbl">Monthly lift</span><span class="mval" id="totalMonthly">$47.7K</span><span class="msub">Average per month</span></div>
+    </div>
+    <div class="grid2">
+      <div class="mbox sa"><span class="mlbl">Payback period</span><span class="mval sky" id="paybackPeriod">1 mo</span><span class="msub">Months to break even</span><div class="bar-bg"><div class="bar-fill" id="paybackBar" style="width: 96%;"></div></div></div>
+      <div class="mbox"><span class="mlbl">ROI multiple (year 1)</span><span class="mval" id="roiMultiple">14.0x</span><span class="msub">Return per $1 invested</span></div>
+    </div>
+    <div class="divider"></div>
+    <table class="bd">
+      <thead><tr><th>Revenue driver</th><th>Without Athos</th><th>With Athos</th><th>Annual gain</th></tr></thead>
+      <tbody>
+        <tr><td>AOV / personalization</td><td id="b1">$2,931,442/yr</td><td id="b2">$3,224,587/yr</td><td id="b3" style="color:var(--blue);font-weight:600">+$293,144</td></tr>
+        <tr><td>Search conversion</td><td id="b4">$1,546,740/yr</td><td id="b5">$1,778,751/yr</td><td id="b6" style="color:var(--blue);font-weight:600">+$232,011</td></tr>
+        <tr><td>Site-wide CVR lift</td><td id="b7">$948,442/yr</td><td id="b8">$995,865/yr</td><td id="b9" style="color:var(--blue);font-weight:600">+$47,422</td></tr>
+        <tr class="sub"><td>Gross lift</td><td id="b10">$5,426,625/yr</td><td id="b11">$5,999,202/yr</td><td id="b12" style="color:var(--blue)">+$572,577</td></tr>
+        <tr class="cost"><td>Annual platform cost</td><td>-</td><td id="b13">$36,000/yr</td><td id="b14">-$36,000</td></tr>
+        <tr class="cost"><td>Implementation (one-time)</td><td>-</td><td id="b15">$5,000 (once)</td><td id="b16">-$5,000</td></tr>
+        <tr class="net"><td>Net ROI - year 1</td><td>-</td><td>-</td><td id="b17">+$531,577</td></tr>
+      </tbody>
+    </table>
+    <div class="btn-row">
+      <button class="btn" onclick="copySummary(this)">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"></rect><path d="M3 11H2a1 1 0 01-1-1V2a1 1 0 011-1h8a1 1 0 011 1v1"></path></svg>
+        Copy email summary
+      </button>
+      <button class="btn pri" id="pdfBtn" onclick="exportPdf()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 10v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3M8 1v8M5 6l3 3 3-3"></path></svg>
+        Download PDF report
+      </button>
+      <button class="btn" id="printBtn" onclick="printPage()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6V2h8v4M4 11H2V6h12v5h-2M4 9h8v5H4z"></path></svg>
+        Print this page
+      </button>
+    </div>
+    <div id="pdfInstructions" style="display:none;margin-top:12px;padding:12px 14px;background:#EDF1F8;border-radius:6px;border-left:3px solid #00AEEF;font-size:13px;color:#343A40;line-height:1.7;">
+      <strong style="color:#1D4990;">Report downloaded.</strong> To save as PDF:<br>
+      1. Open the downloaded file in your browser<br>
+      2. Press <strong>Ctrl+P</strong> (Windows) or <strong>Cmd+P</strong> (Mac)<br>
+      3. Set destination to <strong>Save as PDF</strong> → Save
+    </div>
+  </div>
+
+  <div class="tip-card">
+    <div class="card-title">How to find search sessions in GA4</div>
+    <ol style="padding-left:1.25rem;font-size:13px;color:var(--gray-800);line-height:2">
+      <li>Log in to Google Analytics and select the GA4 property.</li>
+      <li>In the left nav, click the <strong>Reports</strong> tab.</li>
+      <li>Top-right, set the date range to <strong>Last 12 months</strong> and click Apply.</li>
+      <li>Click the search bar at the top of the screen.</li>
+      <li>Enter: <em>Sessions for event name "view_search_results" in last 12 months</em></li>
+      <li>Click the first result - a sidebar shows the session count.</li>
+      <li>Enter that number in the <strong>Search sessions</strong> field above.</li>
+    </ol>
+  </div>
+
+  <div class="footer">Athos Commerce — athoscommerce.com — This projection is based on prospect-provided metrics and Athos Commerce platform benchmarks. Actual results may vary.</div>
+</div>
+
+<script>
+var _d={};
+function fmt(n){return'$'+Math.round(n).toLocaleString('en-US');}
+function fmtK(n){var r=Math.round(n);if(r>=1000000)return'$'+(r/1000000).toFixed(1)+'M';if(r>=1000)return'$'+(r/1000).toFixed(1)+'K';return'$'+r.toLocaleString('en-US');}
+document.getElementById('dateBadge').textContent=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+function calc(){
+  var s=parseFloat(document.getElementById('sessions').value)||0;
+  var ss=parseFloat(document.getElementById('searchSessions').value)||0;
+  var cvr=parseFloat(document.getElementById('cvr').value)||0;
+  var scvr=parseFloat(document.getElementById('searchCvr').value)||0;
+  var aov=parseFloat(document.getElementById('aov').value)||0;
+  var al=parseFloat(document.getElementById('aovLift').value)||0;
+  var sl=parseFloat(document.getElementById('searchLift').value)||0;
+  var cl=parseFloat(document.getElementById('cvrLift').value)||0;
+  var pc=parseFloat(document.getElementById('platformCost').value)||0;
+  var ic=parseFloat(document.getElementById('implCost').value)||0;
+
+  var newAov=aov*(1+al/100);
+  var ab=s*(cvr/100)*aov, aa=s*(cvr/100)*newAov, ag=aa-ab;
+  var nscvr=scvr*(1+sl/100);
+  var sb=ss*(scvr/100)*aov, sa=ss*(nscvr/100)*aov, sg=sa-sb;
+  var ns=Math.max(0,s-ss), ncvr=cvr*(1+cl/100);
+  var cb=ns*(cvr/100)*aov, ca=ns*(ncvr/100)*aov, cg=ca-cb;
+  var total=ag+sg+cg, cost=pc+ic, net=total-cost;
+  var pay=total>0?Math.ceil(cost/(total/12)):999;
+  var mult=cost>0?total/cost:0;
+
+  document.getElementById('totalAnnual').textContent=fmtK(total);
+  document.getElementById('netAnnual').textContent=fmtK(net);
+  document.getElementById('netAnnual').className='mval '+(net>=0?'blue':'sky');
+  document.getElementById('totalMonthly').textContent=fmtK(total/12);
+  document.getElementById('paybackPeriod').textContent=pay>=999?'N/A':pay+' mo';
+  document.getElementById('roiMultiple').textContent=mult>0?mult.toFixed(1)+'x':'N/A';
+  document.getElementById('paybackBar').style.width=(pay>=999?0:Math.max(10,Math.round((1-pay/24)*100)))+'%';
+
+  var set=function(id,v){document.getElementById(id).textContent=v;};
+  set('b1',fmt(ab)+'/yr'); set('b2',fmt(aa)+'/yr'); set('b3','+'+fmt(ag));
+  set('b4',fmt(sb)+'/yr'); set('b5',fmt(sa)+'/yr'); set('b6','+'+fmt(sg));
+  set('b7',fmt(cb)+'/yr'); set('b8',fmt(ca)+'/yr'); set('b9','+'+fmt(cg));
+  set('b10',fmt(ab+sb+cb)+'/yr'); set('b11',fmt(aa+sa+ca)+'/yr'); set('b12','+'+fmt(total));
+  set('b13',fmt(pc)+'/yr'); set('b14','-'+fmt(pc));
+  set('b15',fmt(ic)+' (once)'); set('b16','-'+fmt(ic));
+  set('b17',(net>=0?'+':'')+fmt(net));
+  _d={s,ss,cvr,scvr,aov,al,sl,cl,newAov,nscvr,ncvr,ab,aa,ag,sb,sa,sg,cb,ca,cg,total,pc,ic,cost,net,pay,mult};
+}
+
+function setPreset(p){
+  var v={conservative:{al:5,sl:8,cl:2},moderate:{al:10,sl:15,cl:5},aggressive:{al:18,sl:25,cl:10}}[p];
+  document.getElementById('aovLift').value=v.al; document.getElementById('aovLiftVal').textContent=v.al+'%';
+  document.getElementById('searchLift').value=v.sl; document.getElementById('searchLiftVal').textContent=v.sl+'%';
+  document.getElementById('cvrLift').value=v.cl; document.getElementById('cvrLiftVal').textContent=v.cl+'%';
+  document.querySelectorAll('.pbtn').forEach(function(b){b.classList.toggle('active',b.textContent.toLowerCase()===p);});
+  calc();
+}
+function clearPreset(){document.querySelectorAll('.pbtn').forEach(function(b){b.classList.remove('active');});}
+
+function copySummary(btn){
+  var d=_d, site=document.getElementById('siteName').value||'your site', rep=document.getElementById('repName').value||'';
+  var lines=['Athos Commerce - ROI Projection for '+site,'='.repeat(50),'','CURRENT SITE METRICS',
+    '  Annual sessions:         '+(d.s||0).toLocaleString(),
+    '  Search sessions:         '+(d.ss||0).toLocaleString(),
+    '  Site conversion rate:    '+(d.cvr||0)+'%',
+    '  Search conversion rate:  '+(d.scvr||0)+'%',
+    '  Average order value:     $'+(d.aov||0).toLocaleString(),'',
+    'ATHOS IMPACT ASSUMPTIONS',
+    '  AOV lift:                '+(d.al||0)+'%',
+    '  Search conversion lift:  '+(d.sl||0)+'%',
+    '  Site-wide CVR lift:      '+(d.cl||0)+'%','',
+    'PROJECTED REVENUE GAINS',
+    '  AOV / personalization:   +$'+Math.round(d.ag||0).toLocaleString()+'/yr',
+    '  Search conversion:       +$'+Math.round(d.sg||0).toLocaleString()+'/yr',
+    '  Site-wide CVR:           +$'+Math.round(d.cg||0).toLocaleString()+'/yr',
+    '  Gross annual lift:       +$'+Math.round(d.total||0).toLocaleString()+'/yr',
+    '  Monthly lift:            +$'+Math.round((d.total||0)/12).toLocaleString()+'/mo','',
+    'INVESTMENT & NET ROI',
+    '  Annual platform cost:    $'+Math.round(d.pc||0).toLocaleString(),
+    '  Implementation cost:     $'+Math.round(d.ic||0).toLocaleString(),
+    '  Net ROI (year 1):        +$'+Math.round(d.net||0).toLocaleString(),
+    '  ROI multiple:            '+(d.mult||0).toFixed(1)+'x',
+    '  Payback period:          '+((d.pay||0)>=999?'N/A':(d.pay||0)+' months')];
+  if(rep)lines.push('','Prepared by: '+rep);
+  lines.push('','Generated by Athos Commerce ROI Calculator - athoscommerce.com');
+  var text=lines.join('\n');
+
+  /* Try modern clipboard API first, fall back to textarea selection trick */
+  function showCopied(){
+    var orig=btn.innerHTML; btn.textContent='Copied!';
+    setTimeout(function(){btn.innerHTML=orig;},2000);
+  }
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(text).then(showCopied).catch(fallback);
+  } else { fallback(); }
+  function fallback(){
+    var ta=document.createElement('textarea');
+    ta.value=text;
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0;pointer-events:none;';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try{ document.execCommand('copy'); showCopied(); } catch(e){ alert('Could not auto-copy. Please copy the text manually:\n\n'+text); }
+    document.body.removeChild(ta);
+  }
+}
+
+function exportPdf(){
+  var btn=document.getElementById('pdfBtn');
+  var d=_d;
+  var site=document.getElementById('siteName').value||'Prospect';
+  var rep=document.getElementById('repName').value||'Athos Commerce';
+  var today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  function row2(a,b,bold,bg){var fw=bold?'font-weight:700;':'';return'<tr style="background:'+(bg||'#fff')+'"><td style="padding:9px 14px;border-bottom:1px solid #E9ECEF;font-size:13px;color:#495057;'+fw+'">'+a+'</td><td style="padding:9px 14px;border-bottom:1px solid #E9ECEF;font-size:13px;text-align:right;color:#212529;'+fw+'">'+b+'</td></tr>';}
+  function row4(a,b,c,dd,bold,bg){var fw=bold?'font-weight:700;':'';return'<tr style="background:'+(bg||'#fff')+'"><td style="padding:9px 14px;border-bottom:1px solid #E9ECEF;font-size:13px;color:#495057;'+fw+'">'+a+'</td><td style="padding:9px 14px;border-bottom:1px solid #E9ECEF;font-size:13px;text-align:right;color:#212529;">'+b+'</td><td style="padding:9px 14px;border-bottom:1px solid #E9ECEF;font-size:13px;text-align:right;color:#212529;">'+c+'</td><td style="padding:9px 14px;border-bottom:1px solid #E9ECEF;font-size:13px;text-align:right;color:#1D4990;'+fw+'">'+dd+'</td></tr>';}
+  function th2(a,b){return'<tr><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#1D4990;color:#fff;">'+a+'</th><th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#1D4990;color:#fff;">'+b+'</th></tr>';}
+  function th4(a,b,c,dd){return'<tr><th style="padding:10px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#1D4990;color:#fff;">'+a+'</th><th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#1D4990;color:#fff;">'+b+'</th><th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#1D4990;color:#fff;">'+c+'</th><th style="padding:10px 14px;text-align:right;font-size:11px;text-transform:uppercase;letter-spacing:.05em;background:#1D4990;color:#fff;">'+dd+'</th></tr>';}
+  function sec(t){return'<h2 style="font-family:Arial,sans-serif;font-size:11px;font-weight:700;color:#1D4990;text-transform:uppercase;letter-spacing:.07em;margin:28px 0 10px;padding-bottom:6px;border-bottom:2px solid #1D4990;">'+t+'</h2>';}
+  function mbox(lbl,val,vc,ac){return'<div style="background:#fff;border:1px solid #E9ECEF;border-radius:8px;padding:18px 20px;border-left:4px solid '+ac+';"><div style="font-family:Arial,sans-serif;font-size:11px;font-weight:600;color:#6C757D;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">'+lbl+'</div><div style="font-family:Arial,sans-serif;font-size:26px;font-weight:700;color:'+vc+';">'+val+'</div></div>';}
+  function tbl(c){return'<table style="width:100%;border-collapse:collapse;font-family:Arial,sans-serif;margin-bottom:4px;">'+c+'</table>';}
+
+  var html='<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Athos ROI - '+site+'</title>'
+    +'<style>*{box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;color:#212529;margin:0;padding:0;}@media print{@page{margin:0.5in;}}</style>'
+    +'</head><body>'
+    +'<div style="background:#1D4990;padding:26px 36px;display:flex;justify-content:space-between;align-items:flex-start;">'
+    +'<div><div style="font-size:26px;font-weight:700;color:#fff;">Athos Commerce</div>'
+    +'<div style="font-size:14px;color:#00AEEF;margin-top:4px;">ROI Projection</div></div>'
+    +'<div style="text-align:right;">'
+    +'<div style="font-size:13px;color:#fff;font-weight:600;">Prepared for: '+site+'</div>'
+    +'<div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:4px;">Prepared by: '+rep+' &nbsp;|&nbsp; '+today+'</div>'
+    +'</div></div>'
+    +'<div style="padding:28px 36px;">'
+    +sec('Executive Summary')
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:4px;">'
+    +mbox('Gross Annual Lift','+'+fmt(d.total),'#1D4990','#1D4990')
+    +mbox('Net ROI (Year 1)','+'+fmt(d.net),'#1D4990','#1D4990')
+    +mbox('Monthly Lift','+'+fmt(d.total/12),'#0090C4','#00AEEF')
+    +mbox('Payback &amp; ROI Multiple',(d.pay>=999?'N/A':d.pay+' months')+' &nbsp;|&nbsp; '+d.mult.toFixed(1)+'x','#0090C4','#00AEEF')
+    +'</div>'
+    +sec('Current Site Metrics')
+    +tbl(th2('Metric','Value')
+      +row2('Annual sessions',(d.s||0).toLocaleString(),false,'#fff')
+      +row2('Search sessions (annual)',(d.ss||0).toLocaleString(),false,'#F8F9FA')
+      +row2('Site-wide conversion rate',(d.cvr||0)+'%',false,'#fff')
+      +row2('Search conversion rate',(d.scvr||0)+'%',false,'#F8F9FA')
+      +row2('Average order value','$'+(d.aov||0).toLocaleString(),false,'#fff'))
+    +sec('Impact Assumptions')
+    +tbl(th2('Driver','Assumption')
+      +row2('AOV lift (recommendations)',d.al+'%  \u2192  New AOV: $'+Math.round(d.newAov).toLocaleString(),false,'#fff')
+      +row2('Search conversion lift',d.sl+'%  \u2192  New rate: '+d.nscvr.toFixed(2)+'%',false,'#F8F9FA')
+      +row2('Site-wide CVR lift',d.cl+'%  \u2192  New rate: '+d.ncvr.toFixed(2)+'%',false,'#fff'))
+    +sec('Revenue Breakdown')
+    +tbl(th4('Revenue Driver','Without Athos','With Athos','Annual Gain')
+      +row4('AOV / Personalization',fmt(d.ab),fmt(d.aa),'+'+fmt(d.ag),false,'#fff')
+      +row4('Search Conversion',fmt(d.sb),fmt(d.sa),'+'+fmt(d.sg),false,'#F8F9FA')
+      +row4('Site-Wide CVR',fmt(d.cb),fmt(d.ca),'+'+fmt(d.cg),false,'#fff')
+      +row4('Gross Lift','','','+'+fmt(d.total),true,'#EDF1F8'))
+    +sec('Investment &amp; Net ROI')
+    +tbl(th2('Item','Amount')
+      +row2('Annual platform cost','$'+Math.round(d.pc||0).toLocaleString(),false,'#fff')
+      +row2('One-time implementation','$'+Math.round(d.ic||0).toLocaleString(),false,'#F8F9FA')
+      +row2('Total year-1 investment','$'+Math.round(d.cost||0).toLocaleString(),false,'#fff')
+      +row2('Gross revenue lift','+$'+Math.round(d.total||0).toLocaleString(),false,'#F8F9FA')
+      +'<tr style="background:#EDF1F8;"><td style="padding:12px 14px;font-size:15px;font-weight:700;color:#1D4990;border-top:2px solid #1D4990;">Net ROI (Year 1)</td>'
+      +'<td style="padding:12px 14px;font-size:18px;font-weight:700;color:#1D4990;text-align:right;border-top:2px solid #1D4990;">+$'+Math.round(d.net||0).toLocaleString()+'</td></tr>'
+      +row2('ROI multiple',d.mult.toFixed(1)+'x',false,'#fff')
+      +row2('Payback period',(d.pay>=999?'N/A':d.pay+' months'),false,'#F8F9FA'))
+    +'<p style="margin-top:32px;font-size:11px;color:#6C757D;font-style:italic;text-align:center;border-top:1px solid #E9ECEF;padding-top:16px;">This projection is based on prospect-provided site metrics and Athos Commerce platform benchmarks. Actual results may vary. | athoscommerce.com</p>'
+    +'</div></body></html>';
+
+  /* Direct download - works everywhere, no popups needed */
+  var blob=new Blob([html],{type:'text/html'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var filename='Athos_ROI_'+(site.replace(/[^a-zA-Z0-9]/g,'_')||'Prospect')+'.html';
+  a.href=url; a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+
+  /* Show instructions */
+  document.getElementById('pdfInstructions').style.display='block';
+  var orig=btn.innerHTML;
+  btn.textContent='Downloaded!';
+  setTimeout(function(){btn.innerHTML=orig;},3000);
+}
+calc();
+
+function printPage(){
+  // Brief timeout lets the browser finish any pending renders
+  setTimeout(function(){
+    window.focus();
+    window.print();
+  }, 100);
+}
+</script>
+
+
+</body></html>
